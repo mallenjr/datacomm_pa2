@@ -1,5 +1,6 @@
-// Author: Maxwell Young
-// Date: Feb 1, 2016
+// Author: Michael Allen Jr, Wesley Carter
+//         mma357            wc609
+// Date: Oct 6, 2016
 
 #ifndef PACKET_H
 #define PACKET_H
