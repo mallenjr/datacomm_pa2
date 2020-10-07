@@ -18,7 +18,19 @@
 #include <math.h>
 #include <time.h>
 
+using std::cout;
+using std::endl;
+using std::stringstream;
+using std::noskipws;
+using std::ifstream;
+using std::ios_base;
 
 int main(int argc, char *argv[]) {
   return 0;
+}
+
+Client::Client(const char *_hostName, const char *_negotiationPort, const char *_fileName) {
+  hostName = gethostbyname(_hostName);
+  negotiationPort = atoi(_negotiationPort);
+  fileName = _fileName;
 }

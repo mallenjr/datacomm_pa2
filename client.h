@@ -11,8 +11,8 @@ private:
 
   struct sockaddr_in server;
   struct hostent *hostName;
-  char *fileName;
-  int negotiationSocket;
+  const char *fileName;
+  int negotiationPort;
 
 public:
 
