@@ -6,4 +6,4 @@ client: client.cpp client.h packet.cpp packet.h common.h
 server: server.cpp server.h packet.cpp packet.h common.h
 
 clean:
-		\rm *.o client server
+		\rm client server
