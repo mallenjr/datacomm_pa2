@@ -1,5 +1,5 @@
-// Author: Michael Allen Jr, Wesley Carter
-//         mma357            wc609
+// Authors: Michael Allen Jr | Wesley Carter
+//          mma357           |  wc609
 // Date: Oct 6, 2016
 
 #include <stdlib.h>
@@ -26,6 +26,8 @@ using std::noskipws;
 using std::ofstream;
 using std::ios_base;
 
+// Server class implementation. All of the functions are explained
+// in the implementation file.
 class Server{
 	
 private:
@@ -44,119 +46,17 @@ private:
 
 public:
 
-	Server(const char *_negotiationPort) {
-    negotiationPort = atoi(_negotiationPort);
-    slen = sizeof(server);
-  }
-
-  ~Server() {
-    if (ackPacket != nullptr) {
-      delete ackPacket;
-    }
-
-    if (dataPacket != nullptr) {
-      delete dataPacket;
-    }
-  }
-
-  int initConnection() {
-    if ((gbnSocket=socket(AF_INET, SOCK_DGRAM, 0))==-1)
-      cout << "Failed creating data socket.\n";
-
-    // Initializing UDP Data socket
-    memset((char *) &server, 0, sizeof(server));
-    server.sin_family = AF_INET;
-    server.sin_addr.s_addr = htonl(INADDR_ANY);
-    server.sin_port = htons(negotiationPort);
-
-    return bind(gbnSocket, (struct sockaddr *)&server, sizeof(server));
-  }
-
-  int recvPacket() {
-    char chunk[64];
-
-    memset((char *) &data, 0, sizeof(data));
-    memset((char *) &chunk, 0, sizeof(chunk));
-
-    if (dataPacket != nullptr) {
-      delete dataPacket;
-    }
-
-    dataPacket = new packet(1, 0, 30, data);
-    if ((recvfrom(gbnSocket, chunk, 64, 0, (struct sockaddr*) &server, &slen)) < 0) {
-      return -1;
-    }
-
-    dataPacket->deserialize(chunk);
-  }
-
-  bool packetCorrupt() {
-    return dataPacket->getSeqNum() >= 8;
-  }
-
-  char * extractPacketData() {
-    if (dataPacket == nullptr) {
-      return (char *) "";
-    }
-
-    return dataPacket->getData();
-  }
-
-  int extractPacketLength() {
-    if (dataPacket == nullptr) {
-      return 0;
-    }
-
-    return dataPacket->getLength();
-  }
-
-  int endTransmission() {
-    if (ackPacket != nullptr) {
-      delete ackPacket;
-    }
-
-    ackPacket = new packet(2, ns.value, 0, NULL);
-    ackPacket->serialize(chunk);
-
-    if ((sendto(gbnSocket, chunk, 64, 0, (struct sockaddr*) &server, slen)) < 0) {
-      return -1;
-    }
-
-    done = true;
-  }
-
-  int acknowledge() {
-    memset((char *) &chunk, 0, sizeof(chunk));
-
-    if (ackPacket != nullptr) {
-      delete ackPacket;
-    }
-
-    ackPacket = new packet(0, ns.value, 0, NULL);
-    ackPacket->serialize(chunk);
-
-    if ((sendto(gbnSocket, chunk, 64, 0, (struct sockaddr*) &server, slen)) < 0) {
-      return -1;
-    }
-
-    ns++;
-    return 0;
-  }
-
-  bool receiving() {
-    return !done;
-  }
-
-  bool receivedPacketIsEot() {
-    return dataPacket->getType() == 3;
-  }
-
-  void log() {
-    cout << "\n--------------------------------------" << endl;
-    dataPacket->printContents();
-    cout << "Expecting Rn:  " << ackPacket->getSeqNum() << endl;
-    cout << "sn: " << ackPacket->getSeqNum() << endl;
-    ackPacket->printContents();
-  }
+	Server(const char *_negotiationPort);
+  ~Server();
+  int initConnection();
+  int recvPacket();
+  char * extractPacketData();
+  int extractPacketLength();
+  int endTransmission();
+  int acknowledge();
+  bool receiving();
+  bool receivedPacketIsEot();
+  bool packetCorrupt();
+  void log();
 
 };
