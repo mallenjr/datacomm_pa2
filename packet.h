@@ -11,7 +11,7 @@ class packet{
 	
 private:
 	
-    int type;       // 0 if an ACK, 1 if a data packet
+	int type;       // 0 if an ACK, 1 if a data packet
 	int seqnum;     // sequence number
 	int length;     // number of characters carried in data field 
 	char * data;    // remember this should be 0 for ACK packets

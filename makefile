@@ -1,10 +1,9 @@
+CXXFLAGS = -std=c++11
 all: client server
 
-client: client.o
-		g++ -std=c++11 client.cpp client.h packet.cpp packet.h -o client
+client: client.cpp client.h packet.cpp packet.h common.h
 
-server: server.o
-		g++ -std=c++11 server.cpp server.h packet.cpp packet.h -o server
+server: server.cpp server.h packet.cpp packet.h common.h
 
 clean:
 		\rm *.o client server

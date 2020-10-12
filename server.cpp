@@ -5,29 +5,52 @@
 #include "server.h"
 
 int main(int argc, char *argv[]) {
-  Server *server = new Server(argv[1], argv[2]);
+  Server *server = new Server(argv[1]);
 
   if (server->initConnection() == -1) {
     cout << "Error in binding negotiation socket.\n";
     exit(-1);
   }
 
+  ofstream out_file(argv[2], std::ios::out | std::ios::trunc);
+
+  if (!out_file.is_open()) {
+    cout << "Failed to open data file\n";
+    return -1;
+  }
+
+  while(server->receiving()) {
+    if (server->recvPacket() == -1) {
+      cout << "Error in receiving packet.\n";
+      exit(-1);
+    }
+
+    if (server->packetCorrupt()) {
+      continue;
+    }
+
+    out_file.write(
+      server->extractPacketData(),
+      server->extractPacketLength()
+    );
+
+    if (server->receivedPacketIsEot()) {
+      if (server->endTransmission() < 0) {
+        cout << "Error sending ack packet.\n";
+        exit(-1);
+      }
+    } else {
+      if (server->acknowledge() < 0) {
+        cout << "Error sending ack packet.\n";
+        exit(-1);
+      }
+    }
+
+    server->log(); 
+  }
+
+  cout << "-----------------------------------------" << endl;
+
+  out_file.close();
   return 0;
-}
-
-int Server::initConnection() {
-  if ((gbnSocket=socket(AF_INET, SOCK_DGRAM, 0))==-1)
-    cout << "Failed creating data socket.\n";
-
-  // Initializing UDP Data socket
-  memset((char *) &server, 0, sizeof(server));
-  server.sin_family = AF_INET;
-  server.sin_addr.s_addr = htonl(INADDR_ANY);
-  server.sin_port = htons(negotiationPort);
-
-  return bind(gbnSocket, (struct sockaddr *)&server, sizeof(server));
-}
-
-int Server::listen() {
-  
 }
