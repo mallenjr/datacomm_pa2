@@ -9,6 +9,11 @@
 // in packets. The code is almost English so I feel no need to make any
 // additional comments :)
 int main(int argc, char *argv[]) {
+  if (argc != 4) {
+    cout << "Usage: client <hostname> <port> <filename>" << endl;
+    return -1; 
+  }
+
   Client *client = new Client(
     argv[1],  // host name
     argv[2]   // port

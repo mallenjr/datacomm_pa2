@@ -4,7 +4,16 @@
 
 #include "server.h"
 
+// Main: This function instantaites the sever, opens the ouput file,
+// and uses the server control functions to receive the file from the 
+// client in packets. The code is almost English so I feel no need 
+// to make any additional comments :)
 int main(int argc, char *argv[]) {
+  if (argc != 3) {
+    cout << "Usage: server <port> <filename>" << endl;
+    return -1; 
+  }
+
   Server *server = new Server(argv[1]);
   ofstream arrival("arrival.log", std::ios::out | std::ios::trunc);
 
