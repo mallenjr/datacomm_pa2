@@ -6,6 +6,7 @@
 
 int main(int argc, char *argv[]) {
   Server *server = new Server(argv[1]);
+  ofstream arrival("arrival.log", std::ios::out | std::ios::trunc);
 
   if (server->initConnection() == -1) {
     cout << "Error in binding negotiation socket.\n";
@@ -25,7 +26,13 @@ int main(int argc, char *argv[]) {
       exit(-1);
     }
 
+    arrival << server->extractPacketSequenceNum() << "\n";
+
     if (server->packetCorrupt()) {
+      if (server->acknowledge() < 0) {
+        cout << "Error sending ack packet.\n";
+        exit(-1);
+      }
       continue;
     }
 
@@ -44,6 +51,8 @@ int main(int argc, char *argv[]) {
         cout << "Error sending ack packet.\n";
         exit(-1);
       }
+
+      server->incrementSequence();
     }
 
     server->log(); 
@@ -51,6 +60,7 @@ int main(int argc, char *argv[]) {
 
   cout << "-----------------------------------------" << endl;
 
+  arrival.close();
   out_file.close();
   return 0;
 }
@@ -146,6 +156,11 @@ int Server::extractPacketLength() {
   return dataPacket->getLength();
 }
 
+// Extract packet seq num: extracts the packet sequence number...
+int Server::extractPacketSequenceNum() {
+  return dataPacket->getSeqNum();
+}
+
 
 // End transmission: pretty self-explanatory. Sends EOT packet to client.
 int Server::endTransmission() {
@@ -180,10 +195,14 @@ int Server::acknowledge() {
     return -1;
   }
 
-  ns++;
   return 0;
 }
 
+
+// Increment sequence: the sequence counter for server is incremented by one
+void Server::incrementSequence() {
+  ns++;
+}
 
 // Receiveing: a control function that will keep the while loop running
 // until an EOT packet is received from the client.
@@ -200,8 +219,9 @@ bool Server::receivedPacketIsEot() {
 
 // Packet corrput: if the sequence number is out of bounds the packet is corrupt.
 bool Server::packetCorrupt() {
-    return dataPacket->getSeqNum() >= 8;
-  }
+  dataPacket->printContents();
+  return dataPacket->getSeqNum() != ns.value;
+}
 
 
 // Log: logging function required by assignment. It's only here so we won't

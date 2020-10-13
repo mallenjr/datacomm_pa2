@@ -50,7 +50,9 @@ public:
   ~Server();
   int initConnection();
   int recvPacket();
+  void incrementSequence();
   char * extractPacketData();
+  int extractPacketSequenceNum();
   int extractPacketLength();
   int endTransmission();
   int acknowledge();

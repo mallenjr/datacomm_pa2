@@ -28,6 +28,7 @@ using std::stringstream;
 using std::noskipws;
 using std::ifstream;
 using std::ios_base;
+using std::ofstream;
 
 
 // Client class implementation. All of the functions are explained
@@ -35,6 +36,8 @@ using std::ios_base;
 class Client{
 	
 private:
+
+  ofstream clientseqnum, clientack;
 
   SequenceCounter ns, sb;
   struct sockaddr_in server;

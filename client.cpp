@@ -9,7 +9,10 @@
 // in packets. The code is almost English so I feel no need to make any
 // additional comments :)
 int main(int argc, char *argv[]) {
-  Client *client = new Client(argv[1], argv[2]);
+  Client *client = new Client(
+    argv[1],  // host name
+    argv[2]   // port
+  );
 
   int count = 0;
 
@@ -70,6 +73,9 @@ Client::Client(const char *_hostName, const char *_negotiationPort) {
   hostName = gethostbyname(_hostName);
   negotiationPort = atoi(_negotiationPort);
   slen = sizeof(server);
+
+  clientseqnum.open("clientseqnum.log", std::ios::out | std::ios::trunc);
+  clientack.open("clientack.log", std::ios::out | std::ios::trunc);
 }
 
 
@@ -88,6 +94,9 @@ Client::~Client() {
   if (ackPacket != nullptr) {
     delete ackPacket;
   }
+
+  clientseqnum.close();
+  clientack.close();
 }
 
 
@@ -135,6 +144,7 @@ int Client::recvPacket() {
   // If the recieved packet is an EOT packet, do the requisite things
   // to shut down the client.
   if (ackPacket->getType() == 2) {
+    clientack << ackPacket->getSeqNum() << "\n";
     stopTimer();
     done = true;
     logEot();
@@ -221,6 +231,8 @@ int Client::endTransmission() {
   cout << "\n--------------------------------------" << endl;
   cout << "Sending EOT packet to server." << endl;
   eotPacket->printContents();
+
+  clientseqnum << eotPacket->getSeqNum() << "\n";
 
   if ((sendto(gbnSocket, chunk, sizeof(chunk), 0, (struct sockaddr*) &server, slen)) == -1) {
     std::cout << "Failed sending eot packet to data socket\n";
@@ -316,4 +328,10 @@ void Client::log(packet *_packet) {
   cout << "SB: " << sb.value << endl;
   cout << "NS: " << ns.value << endl;
   cout << "Number of outstanding packets: " << ns.distance(sb);
+
+  if (_packet->getType() == 0) {
+    clientack << _packet->getSeqNum() << "\n";
+  } else {
+    clientseqnum << _packet->getSeqNum() << "\n";
+  }
 }
