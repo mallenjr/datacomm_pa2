@@ -141,6 +141,8 @@ int Server::recvPacket() {
   }
 
   dataPacket->deserialize(chunk);
+
+  return 0;
 }
 
 
@@ -185,6 +187,7 @@ int Server::endTransmission() {
   }
 
   done = true;
+  return 0;
 }
 
 

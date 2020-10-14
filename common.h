@@ -25,7 +25,7 @@ struct SequenceCounter {
   // The ++ operator was overloaded to make
   // seqeunce numbers easy to manage while
   // automatically increasing cycle count.
-  SequenceCounter operator++(int) {
+  void operator++(int) {
     value = (value + 1) % 8;
     if (value == 0)
       ++cycle;

@@ -163,6 +163,8 @@ int Client::recvPacket() {
   } else {
     startTimer();
   }
+
+  return 0;
 }
 
 
@@ -243,6 +245,8 @@ int Client::endTransmission() {
     std::cout << "Failed sending eot packet to data socket\n";
     return -1;
   }
+
+  return 0;
 }
 
 
